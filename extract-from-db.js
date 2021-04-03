@@ -11,51 +11,46 @@ function simplifyString(str) {
   return str.replaceAll(/[^A-Za-z_0-9]| /g, '_')
 }
 
+async function createFile(contest, problem, user, submission) {
+  const dirpath = `out/${simplifyString(contest.name)}/${simplifyString(problem.name)}`;
+  const filepath = `${dirpath}/${user.handle}.cpp`
+  console.log(filepath);
+
+  try {
+    await fs.mkdir(dirpath, { recursive: true })
+  } catch (e) {
+  }
+  await fs.writeFile(filepath, submission.code)  
+}
+
 async function run() {
   await client.connect()
 
-  const db = client.db("jude-dev");
+  const db = client.db("jude-dev")
   
-  // TODO: filtrar por submissões aceitas
-  const submissions = await db.collection('submissions').aggregate([
-    { "$group": { 
-      "_id": { creator: "$_creator", problem: "$problem" },
-      "doc": { "$last": "$$ROOT" }
-    }}
-  ]);
+  for await (contest of db.collection('contests').find()) {
+    for await (problem_info of contest.problems) {
+      const problem = await db.collection('problems').findOne({ "_id": problem_info.problem })
 
-  const all = await submissions.toArray()
-  const count = all.length
-
-  let index = 0
-  for await (v of all) {
-    const codigo = v["doc"]["code"]
-    const creator_id = v["_id"]["creator"]
-    const user = await db.collection('users').findOne({ "_id" : creator_id })
-    const username = user['handle']
-    const problem_id = v["_id"]["problem"]
-    const problem = await db.collection('problems').findOne({ "_id" : problem_id })
-    const problem_name = problem['name']
-    const contest = await db.collection('contests').findOne({ "_id": v["doc"]["contest"] })
-    if (!contest) {
-      console.error(`Contest not found for problem ${problem_name}`)
-      continue
+      const submissions = db.collection('submissions').aggregate([
+          { "$match": { contest: contest._id, problem: problem._id } },
+          { "$group": 
+            { 
+              "_id": { contest: "$contest", problem: "$problem", creator: "$_creator" },
+              "submission": { "$last": "$$ROOT" }
+            }
+          }
+      ]);
+      
+      for await (aggregate of submissions) {
+        const submission = aggregate.submission
+        const user = await db.collection('users').findOne({ "_id": submission._creator })
+        
+        createFile(contest, problem, user, submission)
+      }
     }
-    
-    const contest_name = contest['name']
-    
-    const path = `out/${simplifyString(contest_name)}/${simplifyString(problem_name)}`;
-    console.log(path);
-    try {
-      await fs.mkdir(path, { recursive: true })
-    } catch (e) {
-    }
-    await fs.writeFile(path + '/' + username + '.cpp', codigo)  
-
-    index++
-    console.log(`Finished ${index} of ${count}`)
   }
-
+ 
   client.close()
 }
 

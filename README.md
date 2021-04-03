@@ -9,8 +9,7 @@
 
 ou com o sherlock - <https://github.com/diogocabral/sherlock>
 
-		cd out/\[Expressões\ aritméticas\]\ Energia\ para\ transmutação
-		../../../tools/sherlock/sherlock -z 3 -t 50% -r -e cpp . | sort -t ';' -k 3 -n | sed -e 's/;/ /g'
+		../../../tools/sherlock/sherlock -z 3 -t 50% -r -e cpp . | sort -t ';' -k 3 -n | sed -e 's/;/ /g' | sed -e 's/\.\///g
 
 # Fazendo dump com SSH
 
