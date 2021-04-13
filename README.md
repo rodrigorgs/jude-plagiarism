@@ -19,15 +19,6 @@ ou com o sherlock - <https://github.com/diogocabral/sherlock>
 
 # Fazendo dump com SSH
 
-(assumindo que já adicionou a chave pública ao servidor para fazer ssh sem senha)
+Primeiramente, você deve adicionar uma chave pública de seu computador ao servidor do JUDE, de forma a realizar SSH sem senha. Você deve utilizar um usuário no servidor com permissão de rodar o comando `sudo` sem senha.
 
-```sh
-# Faz dump e copia
-ssh -p 2099 -t boca@200.128.51.30 "sudo docker exec -ti jude_db_1 mongodump --gzip --archive=/tmp/bocamongo.gz && sudo docker cp jude_db_1:/tmp/bocamongo.gz /tmp/"
-scp -P 2099 boca@200.128.51.30:/tmp/bocamongo.gz .
-ssh -p 2099 -t boca@200.128.51.30 "sudo docker exec -ti jude_db_1 rm -f /tmp/bocamongo.gz && sudo rm -f /tmp/bocamongo.gz"
-# Roda servidor mongo local e restaura
-docker run --name jude-mongo -p 27017:27017 -v $PWD:/tmp -it --rm -d mongo:3.6
-docker exec -ti jude-mongo mongorestore --drop --gzip --archive=/tmp/bocamongo.gz
-```
-
+A seguir, basta executar o script `download-database.sh`.
