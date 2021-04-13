@@ -11,8 +11,8 @@ function simplifyString(str) {
   return str.replaceAll(/[^A-Za-z_0-9]| /g, '_')
 }
 
-async function createFile(contest, problem, user, submission) {
-  const dirpath = `out/${simplifyString(contest.name)}/${simplifyString(problem.name)}`;
+async function createFile(contest, problem, problem_index, user, submission) {
+  const dirpath = `out/${simplifyString(contest.name)}/${problem_index}--${simplifyString(problem.name)}`;
   const filepath = `${dirpath}/${user.handle}.cpp`
   console.log(filepath);
 
@@ -29,7 +29,9 @@ async function run() {
   const db = client.db("jude-dev")
   
   for await (contest of db.collection('contests').find()) {
+    problem_index = 0
     for await (problem_info of contest.problems) {
+      problem_index++
       const problem = await db.collection('problems').findOne({ "_id": problem_info.problem })
 
       const submissions = db.collection('submissions').aggregate([
@@ -46,7 +48,7 @@ async function run() {
         const submission = aggregate.submission
         const user = await db.collection('users').findOne({ "_id": submission._creator })
         
-        createFile(contest, problem, user, submission)
+        createFile(contest, problem, problem_index, user, submission)
       }
     }
   }
