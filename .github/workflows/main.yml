@@ -16,7 +16,7 @@ jobs:
         with:
           key: ${{ secrets.SSH_KEY }}
           if_key_exists: fail # replace / ignore / fail; optional (defaults to fail)
-          # known_hosts: ${{ secrets.KNOWN_HOSTS }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
       - run: ./download-database.sh
       - uses: actions/upload-artifact@v2
         with:
