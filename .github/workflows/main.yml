@@ -9,6 +9,13 @@ on:
 jobs:
   backup:
     runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:3.6
+        ports:
+          - 27017:27017
+
     steps:
       - uses: actions/checkout@v2
       - name: Install SSH key
@@ -17,9 +24,29 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           if_key_exists: fail # replace / ignore / fail; optional (defaults to fail)
           known_hosts: ${{ secrets.KNOWN_HOSTS }}
-      - run: ./download-database.sh
-      - uses: actions/upload-artifact@v2
+      - name: Create and download database dump
+        run: ./download-database.sh
+      - name: Restore database dump
+        run: docker run --tty --name jude-mongo --add-host=host.docker.internal:host-gateway -v $PWD:/tmp mongo:3.6 mongorestore --host host.docker.internal --drop --gzip --archive=/tmp/bocamongo.gz
+      - name: Archive database dump
+        uses: actions/upload-artifact@v2
         with:
           name: bocamongo
           path: bocamongo.gz
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14'
+      - run: npm install
+      - run: node query-scores.js > scores.json
+      - run: node upload-scores.js
+        env:
+          GOOGLE_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
+          GOOGLE_PRIVATE_KEY: ${{ secrets.GOOGLE_PRIVATE_KEY }}
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+      - name: Archive score
+        uses: actions/upload-artifact@v2
+        with:
+          name: scores
+          path: scores.json
 
