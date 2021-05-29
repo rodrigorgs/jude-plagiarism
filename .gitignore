@@ -1,6 +1,9 @@
 bocamongo.gz
 node_modules
 out
+report
+env
+private.key
 
 result
 tools

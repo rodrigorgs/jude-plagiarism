@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const { MongoClient } = require("mongodb");
 const fs = require('fs').promises;
 
