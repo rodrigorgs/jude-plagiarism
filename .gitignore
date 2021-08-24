@@ -4,6 +4,9 @@ out
 report
 env
 private.key
+jplag/
+sherlock/
+scores.json
 
 result
 tools
