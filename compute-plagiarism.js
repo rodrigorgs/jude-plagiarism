@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
+OUTPUT_FOLDER = 'sherlock'
+
 const fs = require('fs')
 const fsPromises = require('fs').promises;
 const process = require('process');
-const hljs = require('highlight.js');
+// const hljs = require('highlight.js');
 const util = require('util');
 const escape = require('escape-html');
 
@@ -15,7 +17,7 @@ main()
 
 async function main() {
   try {
-    await fsPromises.mkdir('report')
+    await fsPromises.mkdir(OUTPUT_FOLDER)
   } catch (e) {
   }
 
@@ -40,7 +42,7 @@ const readFile = util.promisify(fs.readFile)
 const writeFile = util.promisify(fs.writeFile)
 
 async function computePlagiarism(lista, questao) {
-  const output = await execShellCommand(`${SHERLOCK} -z 3 -t 70% -r -e cpp . | sort -t ';' -k 3 -nr | sed -e 's/;/ /g' | sed -e 's/\\.\\///g' | sed -e 's/ /\\t/g'`) // | tee ../../../report/${lista}--${questao}.txt`)
+  const output = await execShellCommand(`${SHERLOCK} -z 2 -t 50% -r -e cpp . | sort -t ';' -k 3 -nr | sed -e 's/;/ /g' | sed -e 's/\\.\\///g' | sed -e 's/.cpp /.cpp\\t/g'`) // | tee ../../../${OUTPUT_FOLDER}/${lista}--${questao}.txt`)
   console.log(output)
   
   if (output.trim().length > 0) {
@@ -60,10 +62,12 @@ async function computePlagiarism(lista, questao) {
     let numPairs = output.trim().split('\n').length
     for (const line of output.trim().split('\n')) {
       const [filename1, filename2, similarity] = line.split('\t')
+      console.log('readFile ', filename1)
       const contents1 = await readFile(filename1, 'utf8')
       const contents2 = await readFile(filename2, 'utf8')
-      const login1 = filename1.replace('.cpp', '')
-      const login2 = filename2.replace('.cpp', '')
+      const login1 = filename1.replace(/ .*/, '')//filename1.replace('.cpp', '').replace(/^a\d+\s/, '')
+      const login2 = filename2.replace(/ .*/, '')//filename2.replace('.cpp', '').replace(/^a\d+\s/, '')
+      // console.log('login1', `'${login1}'`)
       const student1 = await getStudentName(login1)
       const student2 = await getStudentName(login2)
       
@@ -79,7 +83,7 @@ async function computePlagiarism(lista, questao) {
     }
 
     html += '</body></html>'
-    await writeFile(`../../../report/${lista}--${questao}--${numPairs}-pairs.html`, html)
+    await writeFile(`../../../${OUTPUT_FOLDER}/${lista}--${questao}--${numPairs}-pairs.html`, html)
   }
 }
 

@@ -10,12 +10,12 @@ const client = new MongoClient('mongodb://localhost/', {
 
 function simplifyString(str) {
   str = str.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-  return str.replaceAll(/[^A-Za-z_0-9]| /g, '_')
+  return str.replace(/[^A-Za-z_0-9]| /g, '_')
 }
 
 async function createFile(contest, problem, problem_index, user, submission) {
   const dirpath = `out/${simplifyString(contest.name)}/${problem_index}--${simplifyString(problem.name)}`;
-  const filepath = `${dirpath}/${user.handle}.cpp`
+  const filepath = `${dirpath}/${user.handle} ${user.name}.cpp`
   console.log(filepath);
 
   try {
@@ -30,14 +30,14 @@ async function run() {
 
   const db = client.db("jude-dev")
   
-  for await (contest of db.collection('contests').find()) {
+  for await (contest of db.collection('contests').find({ name: { $regex: /ILP/ }})) {
     problem_index = 0
     for await (problem_info of contest.problems) {
       problem_index++
       const problem = await db.collection('problems').findOne({ "_id": problem_info.problem })
 
       const submissions = db.collection('submissions').aggregate([
-          { "$match": { contest: contest._id, problem: problem._id } },
+          { "$match": { contest: contest._id, problem: problem._id, timeInContest: { $ne: -1} , "verdict.main.verdict": "VERDICT_AC" } },
           { "$group": 
             { 
               "_id": { contest: "$contest", problem: "$problem", creator: "$_creator" },
@@ -50,6 +50,10 @@ async function run() {
         const submission = aggregate.submission
         const user = await db.collection('users').findOne({ "_id": submission._creator })
         
+        // console.log(user.name);
+        // for await (const user_submission of db.collection('submissions').find({ "_creator": user._id, "contest": submission.contest, "problem": submission.problem }).sort({ time: -1 })) {
+        //   console.log('  ', user_submission.time, ' ', user_submission.verdict.main.verdict)
+        // }
         createFile(contest, problem, problem_index, user, submission)
       }
     }

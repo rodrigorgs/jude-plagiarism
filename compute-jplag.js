@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+OUTPUT_FOLDER = 'jplag'
+
 const fs = require('fs')
 const fsPromises = require('fs').promises;
 const process = require('process');
@@ -36,7 +38,7 @@ const readFile = util.promisify(fs.readFile)
 const writeFile = util.promisify(fs.writeFile)
 
 async function computePlagiarism(lista, questao) {
-  const output = await execShellCommand(`java -jar ../../../tools/jplag-2.12.1-SNAPSHOT-jar-with-dependencies.jar -s -l c/c++ -r ../../../jplag/${lista}--${questao} .`)
+  const output = await execShellCommand(`java -jar ../../../tools/jplag-2.12.1-SNAPSHOT-jar-with-dependencies.jar -s -l c/c++ -r ../../../${OUTPUT_FOLDER}/${lista}--${questao} .`)
   console.log(output)
 }
 
