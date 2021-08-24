@@ -1,6 +1,9 @@
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const scores = require('./scores.json')
 
+const ROW_OF_FIRST_STUDENT = 2
+const COLUMN_OF_STUDENT_NAME = 1
+
 /*
 Required environment variables:
   - GOOGLE_SERVICE_ACCOUNT_EMAIL
@@ -42,9 +45,13 @@ async function run() {
   // map row names to indices
   console.log('Reading row names...')
   await sheet.loadCells()
-  for (let i = 1; i < sheet.rowCount; i++) {
-    const rowName = simplifyString(sheet.getCell(i, 0).value)
-    rowNameToIndex[rowName] = i
+  for (let i = ROW_OF_FIRST_STUDENT; i < sheet.rowCount; i++) {
+    const cellValue = sheet.getCell(i, COLUMN_OF_STUDENT_NAME).value
+    console.log(i, cellValue)
+    if (cellValue !== null) {
+      const rowName = simplifyString('' + cellValue)
+      rowNameToIndex[rowName] = i
+    }
   }
 
   // iterate over students and update scores
