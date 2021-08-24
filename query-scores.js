@@ -1,7 +1,7 @@
 const { MongoClient, ObjectID } = require("mongodb");
 const fs = require('fs').promises;
 
-CONTEST_REGEX = /(?<type>Lista|Prova) (?<number>\d+) - \b(?:ILP|PD|IPD)\b/
+CONTEST_REGEX = /(?<type>Lista|Prova) (?<number>\d+) - \b(?:ILP|PD|IPD).*2021.2\b/
 
 const client = new MongoClient(`mongodb://${process.env.HOST || 'localhost'}/`, {
   useNewUrlParser: true,
