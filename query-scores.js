@@ -1,7 +1,7 @@
 const { MongoClient, ObjectID } = require("mongodb");
 const fs = require('fs').promises;
 
-CONTEST_REGEX = /(?<type>Lista|Prova) (?<number>\d+) - \b(?:ILP|PD|IPD).*2021.2\b/
+CONTEST_REGEX = /(?<type>Lista|Prova|Avaliação) (?<number>\d+) - \b(?:ILP|PD|IPD).*2021.2\b/
 
 const client = new MongoClient(`mongodb://${process.env.HOST || 'localhost'}/`, {
   useNewUrlParser: true,
@@ -21,6 +21,16 @@ data = {
 
 data = {}
 
+function getContestPrefix(contest_type) {
+  if (contest_type == 'Lista') {
+    return 'L'
+  } else if (contest_type == 'Prova' || contest_type == 'Avaliação') {
+    return 'P'
+  } else  {
+    throw new Error(`Unknown contest type: ${contest_type}`)
+  }
+}
+
 async function run() {
   await client.connect()
   
@@ -32,7 +42,7 @@ async function run() {
     if (match) {
       const contest_type = match.groups.type
       const contest_number = match.groups.number
-      const contest_key = `${contest_type[0]}${contest_number}`
+      const contest_key = `${getContestPrefix(contest_type)}${contest_number}`
       // console.log(`*** Contest ${contest_key}`)
 
       // TODO: verificar

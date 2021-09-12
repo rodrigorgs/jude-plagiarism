@@ -3,6 +3,8 @@
 const { MongoClient } = require("mongodb");
 const fs = require('fs').promises;
 
+const CONTEST_REGEX = /(?<type>Lista|Prova|Avaliação) (?<number>\d+) - \b(?:ILP|PD|IPD).*2021.2\b/
+
 const client = new MongoClient('mongodb://localhost/', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -30,7 +32,7 @@ async function run() {
 
   const db = client.db("jude-dev")
   
-  for await (contest of db.collection('contests').find({ name: { $regex: /ILP/ }})) {
+  for await (contest of db.collection('contests').find({ name: { $regex: CONTEST_REGEX }})) {
     problem_index = 0
     for await (problem_info of contest.problems) {
       problem_index++
