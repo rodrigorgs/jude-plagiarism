@@ -76,9 +76,9 @@ async function computePlagiarism(lista, questao) {
         html += `<p style="color: red;">Conteúdo idêntico!</p>`
       }
       html += `<table><tr><td>
-      <pre><code class="lang-c++">${escape(contents1)}</code></pre>
+      <pre><code class="lang-python">${escape(contents1)}</code></pre>
       </td><td>
-      <pre><code class="lang-c++">${escape(contents2)}</code></pre>
+      <pre><code class="lang-python">${escape(contents2)}</code></pre>
       </td></tr></table><hr>`  
     }
 
