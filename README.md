@@ -27,6 +27,17 @@ Primeiramente, você deve adicionar uma chave pública de seu computador ao serv
 
 A seguir, basta executar o script `download-database.sh`.
 
+# Rodando localmente
+
+```
+source env # este não está sob controle de versão
+./download-database.sh
+./restore-database.sh
+./extract-from-db.js
+./compute-plagiarism.js
+# Abrir pasta sherlock em um navegador web
+```
+
 # Configurando o GitHub Actions
 
 Crie um par de chaves em seu computador:
