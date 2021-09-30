@@ -20,9 +20,15 @@ async function main() {
   process.chdir('out')
   for (const lista of fs.readdirSync('.')) {
     console.log(lista)
+    if (lista.startsWith('.')) {
+      continue
+    }
     process.chdir(lista)
     for (const questao of fs.readdirSync('.')) {
       console.log(questao)
+      if (questao.startsWith('.')) {
+        continue
+      }
       process.chdir(questao)
 
       await computePlagiarism(lista, questao)
@@ -38,7 +44,7 @@ const readFile = util.promisify(fs.readFile)
 const writeFile = util.promisify(fs.writeFile)
 
 async function computePlagiarism(lista, questao) {
-  const output = await execShellCommand(`java -jar ../../../tools/jplag-2.12.1-SNAPSHOT-jar-with-dependencies.jar -s -l c/c++ -r ../../../${OUTPUT_FOLDER}/${lista}--${questao} .`)
+  const output = await execShellCommand(`java -jar ../../../tools/jplag-2.12.1-SNAPSHOT-jar-with-dependencies.jar -s -l python3 -r ../../../${OUTPUT_FOLDER}/${lista}--${questao} .`)
   console.log(output)
 }
 

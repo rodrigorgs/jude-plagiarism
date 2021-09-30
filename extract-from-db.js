@@ -17,7 +17,7 @@ function simplifyString(str) {
 
 async function createFile(contest, problem, problem_index, user, submission) {
   const dirpath = `out/${simplifyString(contest.name)}/${problem_index}--${simplifyString(problem.name)}`;
-  const filepath = `${dirpath}/${user.handle} ${user.name}.cpp`
+  const filepath = `${dirpath}/${user.handle} ${user.name}.py`
   console.log(filepath);
 
   try {

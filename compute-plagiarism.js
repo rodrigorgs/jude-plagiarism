@@ -24,9 +24,15 @@ async function main() {
   process.chdir('out')
   for (const lista of fs.readdirSync('.')) {
     console.log(lista)
+    if (lista.startsWith('.')) {
+      continue
+    }
     process.chdir(lista)
     for (const questao of fs.readdirSync('.')) {
       console.log(questao)
+      if (questao.startsWith('.')) {
+        continue
+      }
       process.chdir(questao)
 
       await computePlagiarism(lista, questao)
@@ -42,7 +48,7 @@ const readFile = util.promisify(fs.readFile)
 const writeFile = util.promisify(fs.writeFile)
 
 async function computePlagiarism(lista, questao) {
-  const output = await execShellCommand(`${SHERLOCK} -z 2 -t 50% -r -e cpp . | sort -t ';' -k 3 -nr | sed -e 's/;/ /g' | sed -e 's/\\.\\///g' | sed -e 's/.cpp /.cpp\\t/g'`) // | tee ../../../${OUTPUT_FOLDER}/${lista}--${questao}.txt`)
+  const output = await execShellCommand(`${SHERLOCK} -z 2 -t 70% -r -e py . | sort -t ';' -k 3 -nr | sed -e 's/;/ /g' | sed -e 's/\\.\\///g' | sed -e 's/.py /.py\\t/g'`) // | tee ../../../${OUTPUT_FOLDER}/${lista}--${questao}.txt`)
   console.log(output)
   
   if (output.trim().length > 0) {
