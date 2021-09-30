@@ -63,7 +63,11 @@ async function run() {
       Object.entries(contestScores).forEach(([contest, points]) => {
         const col = colNameToIndex[contest]
         if (col) {
-          sheet.getCell(row, col).value = points
+          const cell = sheet.getCell(row, col)
+          // Update the cell only if it was not marked as plagiarism (P)
+          if (cell.value != 'P') {
+            cell.value = points
+          }
         }
       })
     } else {
