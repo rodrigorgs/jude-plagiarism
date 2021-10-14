@@ -1,8 +1,10 @@
+#!/usr/bin/env node
+
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const scores = require('./scores.json')
 
 const ROW_OF_FIRST_STUDENT = 2
-const COLUMN_OF_STUDENT_NAME = 1
+const COLUMN_OF_STUDENT_MATRICULA = 0  // 0-based
 
 /*
 Required environment variables:
@@ -21,6 +23,10 @@ function simplifyString(str) {
     str = str.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     return str.replace(/[^A-Za-z_0-9]| /g, '_').toUpperCase()
   }
+}
+
+function convertMatriculaToHandle(matricula) {
+  return 'a' + matricula
 }
 
 async function run() {
@@ -46,19 +52,21 @@ async function run() {
   console.log('Reading row names...')
   await sheet.loadCells()
   for (let i = ROW_OF_FIRST_STUDENT; i < sheet.rowCount; i++) {
-    const cellValue = sheet.getCell(i, COLUMN_OF_STUDENT_NAME).value
+    const cellValue = sheet.getCell(i, COLUMN_OF_STUDENT_MATRICULA).value
     console.log(i, cellValue)
     if (cellValue !== null) {
-      const rowName = simplifyString('' + cellValue)
-      rowNameToIndex[rowName] = i
+      const rowName = '' + cellValue
+      const handle = convertMatriculaToHandle(rowName)
+      rowNameToIndex[handle] = i
     }
   }
+  // console.log(rowNameToIndex)
 
   // iterate over students and update scores
   console.log('Modifying sheet cache...')
   Object.entries(scores).forEach(([aluno, contestScores]) => {
     console.log(aluno)
-    const row = rowNameToIndex[simplifyString(aluno)]
+    const row = rowNameToIndex[aluno]
     if (row) {
       Object.entries(contestScores).forEach(([contest, points]) => {
         const col = colNameToIndex[contest]

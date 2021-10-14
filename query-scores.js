@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const { MongoClient, ObjectID } = require("mongodb");
 const fs = require('fs').promises;
 
@@ -56,27 +58,28 @@ async function run() {
       const aluno_ids = new Set(submissions.map(s => s._creator.toString()))
       
       for (aluno_id of aluno_ids) {
-        const alunoNome = (await db.collection('users').findOne({ '_id': new ObjectID(aluno_id) })).name;
+        const aluno = (await db.collection('users').findOne({ '_id': new ObjectID(aluno_id) }))
+        const alunoHandle = aluno.handle;
         const problemsSolved = new Set(submissions.filter(s => s._creator.toString() == aluno_id).map(s => s.problem.toString()))
-        if (!data[alunoNome]) {
-          // const alunoNome = 'x';
-          data[alunoNome] = { nome: alunoNome, contest_scores: {}}
+        if (!data[alunoHandle]) {
+          // const alunoHandle = 'x';
+          data[alunoHandle] = { handle: alunoHandle, nome: aluno.nome, contest_scores: {}}
         }
-        data[alunoNome].contest_scores[contest._id] = {'name': contest.name, 'key': contest_key, 'score': problemsSolved.size}
+        data[alunoHandle].contest_scores[contest._id] = {'name': contest.name, 'key': contest_key, 'score': problemsSolved.size}
       }
     }
   }
   client.close()
 
   let scoreByKey = {}
-  Object.entries(data).forEach(([alunoNome, alunoData]) => {
-    scoreByKey[alunoNome] = {}
+  Object.entries(data).forEach(([alunoHandle, alunoData]) => {
+    scoreByKey[alunoHandle] = {}
     for (contestData of Object.values(alunoData.contest_scores)) {
-      if (!scoreByKey[alunoNome][contestData.key]) {
-        scoreByKey[alunoNome][contestData.key] = 0
+      if (!scoreByKey[alunoHandle][contestData.key]) {
+        scoreByKey[alunoHandle][contestData.key] = 0
       }
-      if (contestData.score > scoreByKey[alunoNome][contestData.key]) {
-        scoreByKey[alunoNome][contestData.key] = contestData.score
+      if (contestData.score > scoreByKey[alunoHandle][contestData.key]) {
+        scoreByKey[alunoHandle][contestData.key] = contestData.score
       }
     }
   })

@@ -29,6 +29,8 @@ A seguir, basta executar o script `download-database.sh`.
 
 # Rodando localmente
 
+Para detectar plágio:
+
 ```
 source env # este não está sob controle de versão
 ./download-database.sh
@@ -37,6 +39,20 @@ source env # este não está sob controle de versão
 ./compute-plagiarism.js
 # Abrir pasta sherlock em um navegador web
 ```
+
+Para atualizar planilha de notas:
+
+```
+source env # este não está sob controle de versão
+./download-database.sh
+./restore-database.sh
+./query-scores.js > scores.json
+./upload-scores.js
+```
+
+# Abrir pasta sherlock em um navegador web
+```
+
 
 # Configurando o GitHub Actions
 
