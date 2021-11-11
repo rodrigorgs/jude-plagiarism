@@ -44,7 +44,7 @@ async function run() {
               problem: problem._id,
               timeInContest: { $ne: -1},
               "verdict.main.verdict": "VERDICT_AC",
-              language: { $in: ["Py2", "Py3"] },
+              // language: { $in: ["Py2", "Py3"] },
             }
           },
           { "$group": 

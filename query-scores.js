@@ -52,7 +52,7 @@ async function run() {
         'contest': contest._id,
         'verdict.main.verdict': 'VERDICT_AC',
         'verdict.main.score': 1,
-        'language': { $in: ["Py2", "Py3"] },
+        // 'language': { $in: ["Py2", "Py3"] },
         'timeInContest': { $gte: 0 },
       }
       const submissions = await db.collection('submissions').find(acceptedFilter).toArray(); 
