@@ -39,7 +39,14 @@ async function run() {
       const problem = await db.collection('problems').findOne({ "_id": problem_info.problem })
 
       const submissions = db.collection('submissions').aggregate([
-          { "$match": { contest: contest._id, problem: problem._id, timeInContest: { $ne: -1} , "verdict.main.verdict": "VERDICT_AC" } },
+          { "$match": { 
+              contest: contest._id,
+              problem: problem._id,
+              timeInContest: { $ne: -1},
+              "verdict.main.verdict": "VERDICT_AC",
+              language: { $in: ["Py2", "Py3"] },
+            }
+          },
           { "$group": 
             { 
               "_id": { contest: "$contest", problem: "$problem", creator: "$_creator" },

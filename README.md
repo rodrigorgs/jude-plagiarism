@@ -34,6 +34,7 @@ Para detectar plágio:
 ```
 source env # este não está sob controle de versão
 ./download-database.sh
+docker rm jude-mongo
 ./restore-database.sh
 ./extract-from-db.js
 ./compute-plagiarism.js
@@ -45,6 +46,7 @@ Para atualizar planilha de notas:
 ```
 source env # este não está sob controle de versão
 ./download-database.sh
+docker rm jude-mongo
 ./restore-database.sh
 ./query-scores.js > scores.json
 ./upload-scores.js
