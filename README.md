@@ -37,6 +37,7 @@ source env # este não está sob controle de versão
 docker rm jude-mongo
 ./restore-database.sh
 ./extract-from-db.js
+rm -rf sherlock
 ./compute-plagiarism.js
 # Abrir pasta sherlock em um navegador web
 ```
