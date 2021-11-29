@@ -6,10 +6,10 @@ env
 private.key
 jplag/
 sherlock/
+pycode/
 scores.json
 
 result
-tools
 _old
 
 ###### Node.gitignore
