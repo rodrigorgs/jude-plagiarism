@@ -10,12 +10,15 @@ const escape = require('escape-html');
 const SHERLOCK='../../../tools/sherlock/sherlock'
 const PYCODE='../../../tools/pycode_similar_wrapper.py'
 
-
 Promise.resolve()
-  // .then(() => main('sherlock', sherlockCompute, sherlockParse))
+  .then(() => main('copydetect', copydetectCompute, null))
+  // .then(() => main('jplag', jplagCompute, null))
+  .then(() => main('sherlock', sherlockCompute, sherlockParse))
   .then(() => main('pycode', pycodeCompute, pycodeParse))
   .then(() => client.close())
   .catch(console.dir)
+
+  
 
 async function main(output_folder, computeFn, parseFn) {
   try {
@@ -51,7 +54,17 @@ const writeFile = util.promisify(fs.writeFile)
 
 ////////////////////////////
 
-async function pycodeCompute() {
+async function jplagCompute(lista, questao, output_folder) {
+  return await execShellCommand(`java -jar ../../../tools/jplag-2.12.1-SNAPSHOT-jar-with-dependencies.jar -s -l python3 -r ../../../${output_folder}/${lista}--${questao} .`)
+}
+
+async function copydetectCompute(lista, questao, output_folder) {
+  return await execShellCommand(`copydetect --display-thresh 0.7 --disable-autoopen -t . -e py -O ../../../${output_folder}/${lista}--${questao}`)
+}
+
+////////////////////////////
+
+async function pycodeCompute(lista, questao, output_folder) {
   return await execShellCommand(`${PYCODE} | sort -t '\t' -k 3 -nr`)
 }
 
@@ -65,7 +78,7 @@ async function pycodeParse(output) {
 
 ////////////////////////////
 // run from folder that contains files
-async function sherlockCompute() {
+async function sherlockCompute(lista, questao, output_folder) {
   return await execShellCommand(`${SHERLOCK} -z 2 -t 70% -r -e py . | sort -t ';' -k 3 -nr | sed -e 's/;/ /g' | sed -e 's/\\.\\///g' | sed -e 's/.py /.py\\t/g'`)
 }
 
@@ -82,8 +95,12 @@ async function sherlockParse(output) {
 // parseFn deve gerar um array de itens, cada um no seguinte formato:
 //    [filename1, filename2, similarity]
 async function computePlagiarism(lista, questao, output_folder, computeFn, parseFn) {
-  const output = await computeFn()
+  const output = await computeFn(lista, questao, output_folder)
   console.log(output)
+  
+  if (!parseFn)
+    return
+  
   const pairs = await parseFn(output)
   // console.log(pairs)
   
