@@ -27,12 +27,14 @@ jobs:
       - name: Create and download database dump
         run: ./download-database.sh
       - name: Restore database dump
-        run: docker run --tty --name jude-mongo --add-host=host.docker.internal:host-gateway -v $PWD:/tmp mongo:3.6 mongorestore --host host.docker.internal --drop --gzip --archive=/tmp/bocamongo.gz
+        run: docker run --tty --name jude-mongo --add-host=host.docker.internal:host-gateway -v $PWD:/tmp mongo:3.6 mongorestore --host host.docker.internal --drop --gzip --archive=/tmp/bocamongo
+        
       - name: Archive database dump
         uses: actions/upload-artifact@v2
         with:
           name: bocamongo
           path: bocamongo.gz
+          retention-days: 21
       - name: Setup Node.js
         uses: actions/setup-node@v1
         with:
@@ -47,6 +49,7 @@ jobs:
       - name: Archive score
         uses: actions/upload-artifact@v2
         with:
+          retention-days: 21
           name: scores
           path: scores.json
 
