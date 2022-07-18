@@ -27,7 +27,7 @@ jobs:
       - name: Create and download database dump
         run: ./download-database.sh
       - name: Restore database dump
-        run: docker run --tty --name jude-mongo --add-host=host.docker.internal:host-gateway -v $PWD:/tmp mongo:3.6 mongorestore --host host.docker.internal --drop --gzip --archive=/tmp/bocamongo
+        run: docker run --tty --name jude-mongo --add-host=host.docker.internal:host-gateway -v $PWD:/tmp mongo:3.6 mongorestore --host host.docker.internal --drop --gzip --archive=/tmp/bocamongo.gz
         
       - name: Archive database dump
         uses: actions/upload-artifact@v2
